@@ -1,0 +1,205 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+
+	<title>AlloyUI Form Builder</title>
+	<meta name="description" content="AlloyUI Form Builder">
+	<meta name="author" content="Aminah Nuraini">
+
+	<link href="http://cdn.alloyui.com/3.0.1/aui-css/css/bootstrap.min.css" rel="stylesheet"></link>
+	<link rel="stylesheet" href="css/styles.css?v=1.0">
+
+  <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+</head>
+
+<body>
+	<form id="myForm"  method="POST" style="width:200px;">{% csrf_token %}</form>
+	<!-- <script src="js/scripts.js"></script> -->
+	<script src="http://code.jquery.com/jquery-latest.js"></script> 
+	<script src="http://cdn.alloyui.com/3.0.1/aui/aui-min.js"></script>
+	<script type="text/javascript">
+	var formButtons = '<input id="postform" type="hidden" name="formbuilder" value="{}"><button class="btn btn-default" style="margin:0 6px 10px 6px;" type="submit" onclick="saveForm()">Submit</button><button class="btn btn-default" style="margin:0 6px 10px 6px;" type="button" onclick="loadForm()">Load</button>';
+	var availableFields = [
+          {
+            iconClass: 'form-builder-field-icon-text',
+            id: 'uniqueTextField',
+            label: 'Text',
+            readOnlyAttributes: ['name'],
+            type: 'text',
+            unique: true,
+            width: 75
+          },
+          {
+            hiddenAttributes: ['tip'],
+            iconClass: 'form-builder-field-icon-textarea',
+            label: 'Textarea',
+            type: 'textarea'
+          },
+          {
+            iconClass: 'form-builder-field-icon-checkbox',
+            label: 'Checkbox',
+            type: 'checkbox'
+          },
+          {
+            iconClass: 'form-builder-field-icon-button',
+            label: 'Button',
+            type: 'button'
+          },
+          {
+            iconClass: 'form-builder-field-icon-select',
+            label: 'Select',
+            type: 'select'
+          },
+          {
+            iconClass: 'form-builder-field-icon-radio',
+            label: 'Radio Buttons',
+            type: 'radio'
+          },
+          {
+            iconClass: 'form-builder-field-icon-fileupload',
+            label: 'File Upload',
+            type: 'fileupload'
+          },
+          {
+            iconClass: 'form-builder-field-icon-fieldset',
+            label: 'Fieldset',
+            type: 'fieldset'
+          }
+        ];
+	YUI().use(
+  'aui-form-builder',
+  function(Y) {
+    myForm =  new Y.FormBuilder(
+      {
+        availableFields: availableFields,
+        boundingBox: '#myForm',
+        fields: [
+          {
+            label: 'City',
+            options: [
+              {
+                label: 'Ney York',
+                value: 'new york'
+              },
+              {
+                label: 'Chicago',
+                value: 'chicago'
+              }
+            ],
+            predefinedValue: 'chicago',
+            type: 'select'
+          },
+          {
+            label: 'Colors',
+            options: [
+              {
+                label: 'Red',
+                value: 'red'
+              },
+              {
+                label: 'Green',
+                value: 'green'
+              },
+              {
+                label: 'Blue',
+                value: 'blue'
+              }
+            ],
+            type: 'radio'
+          },
+        ]
+      }
+    );
+    myForm.render();
+    $('#myForm').find('div.property-builder-canvas').append(formButtons);
+    
+  }
+);
+
+function saveForm() {
+
+	var serializedFields = [];
+
+	myForm.get('fields').each(
+	    function(field) {
+	        serializedFields.push(
+	            field.getAttributesForCloning()
+	        );
+	    }
+	);
+	$('#postform').attr('value',JSON.stringify(serializedFields));
+
+}
+
+function loadForm() {
+
+	YUI().use(
+	  'aui-form-builder',
+	  function(Y) {
+	  	$.getJSON('http://127.0.0.1:8000/formbuilder/', function(data) {
+	  		$('#myForm').find('div').remove();
+		    myForm =  new Y.FormBuilder(
+			      {
+			        availableFields: availableFields,
+			        boundingBox: '#myForm',
+			        fields: JSON.parse(data['builder']['fields'])
+			      }
+			    ).render();
+
+    		$('#myForm').find('div.property-builder-canvas').append(formButtons);
+			});
+	  }
+	);
+
+}
+	// YUI().use(
+	//   'aui-form-validator',
+	//   function(Y) {
+	//     var rules = {
+	//       email: {
+	//         email: true,
+	//         required: true
+	//       },
+	//       emailConfirmation: {
+	//         email: true,
+	//         equalTo: '#email',
+	//         required: true
+	//       },
+	//       gender: {
+	//         required: true
+	//       },
+	//       name: {
+	//         rangeLength: [2, 50],
+	//         required: true
+	//       },
+	//       url: {
+	//         url: true
+	//       }
+	//     };
+
+	//     var fieldStrings = {
+	//       email: {
+	//         required: 'Type your email in this field.'
+	//       },
+	//       name: {
+	//         required: 'Please provide your name.'
+	//       }
+	//     };
+
+	//     new Y.FormValidator(
+	//       {
+	//         boundingBox: '#myForm',
+	//         fieldStrings: fieldStrings,
+	//         rules: rules,
+	//         showAllMessages: true
+	//       }
+	//     );
+	//   }
+	// );
+	</script>
+</body>
+</html>
